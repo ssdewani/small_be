@@ -13,10 +13,19 @@ const client = new openai({
 });
 
 
+app.use(cors({
+  origin: 'https://small-fe.vercel.app/',
+  methods: 'GET,POST,PUT,DELETE,PATCH,HEAD',
+  credentials: true, // Required if you are sending cookies or session headers
+}));
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://small-fe.vercel.app/']
+  origin: ['http://localhost:5173', FRONTEND_URL],
+  methods: 'GET,POST,PUT,DELETE,PATCH,HEAD',
+  credentials: true,
 }));
+
+
 app.use(express.json());
 app.use(clerkMiddleware())
 

@@ -14,7 +14,9 @@ const client = new openai({
 
 
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://small-fe.vercel.app/']
+}));
 app.use(express.json());
 app.use(clerkMiddleware())
 

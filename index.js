@@ -338,8 +338,7 @@ function removeOpenAICitations(text) {
   // r"】"          : Matches the literal closing bracket 】
   // The 'g' flag ensures that ALL occurrences are replaced globally.
   const customCitationRegex = /cite.*?/g;
-  console.log(text);
-  console.log(text.replace(customCitationRegex, ""));
+
   // The .replace() method substitutes all matches with an empty string ("").
   return text.replace(customCitationRegex, "");
 }

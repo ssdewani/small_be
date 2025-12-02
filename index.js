@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const SUGGESTED_TOPICS = require('./topics');
 require('dotenv').config();
 const { clerkMiddleware, requireAuth, clerkClient } = require('@clerk/express');
+const { Resend } = require('resend');
+
 
 const app = express();
 const port = 3000;
@@ -57,6 +59,7 @@ const feedSchema = new mongoose.Schema({
 
 const Feed = mongoose.model('Feed', feedSchema);
 
+const resend = new Resend();
 
 app.get('/topics', requireAuth(), async (req, res) => {
   const clerkId = req.auth.userId;
@@ -204,7 +207,36 @@ app.patch('/idealike', requireAuth(), async (req, res) => {
 });
 
 
+app.post('/daily', async (req, res) => {
+  if (req.headers['x-cron-key'] !== process.env.CRON_KEY)
+    return res.status(401).send('Unauthorized');
+  doDailyTask();
+  res.send('OK');
+});
+
+
 app.listen(3000, () => console.log("Backend running at http://localhost:3000"));
+
+
+const doDailyTask = async () => {
+  try {
+    const query = User.find({});
+    const cursor = query.cursor();
+
+    for await (const curruser of cursor) {
+      console.log(`Processing user _id: ${curruser._id} | email: ${curruser.email}`);
+      const feed = await generateFeed(curruser.preferredTopics, curruser.feedback, curruser.likes, curruser.dislikes);
+      const newFeed = new Feed({
+        clerkId: curruser.clerkId,
+        ideas: feed.ideas,
+      });
+      await newFeed.save();
+      await sendEmail(curruser.email, JSON.stringify(feed.ideas));
+    }
+  } catch (error) {
+    console.error("An error occurred:", error);
+  };
+}
 
 
 const generateFeed = async (preferredTopics, feedback, likes, dislikes) => {
@@ -341,4 +373,17 @@ function removeOpenAICitations(text) {
 
   // The .replace() method substitutes all matches with an empty string ("").
   return text.replace(customCitationRegex, "");
+}
+
+async function sendEmail(recipient, text) {
+  const { error } = await resend.emails.send({
+    to: recipient,
+    from: "onboarding@resend.dev",
+    subject: "Your Small Talk topics",
+    html: text
+  });
+
+  if (error) {
+    console.error(error);
+  }
 }

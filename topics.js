@@ -11,7 +11,9 @@ const SUGGESTED_TOPICS = [
     "Jokes",
     "Travel",
     "Education",
-    "Weather"
+    "Weather",
+    "Current Events",
+    "Music"
 ];
 
 // Use CommonJS module system to export the array

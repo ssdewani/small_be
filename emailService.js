@@ -6,8 +6,8 @@ const resend = new Resend();
 async function sendEmail(recipient, text) {
     const { error } = await resend.emails.send({
         to: recipient,
-        from: "dailyfeed@smalltalk.fun",
-        subject: "Your Small Talk topics",
+        from: 'Small Talk <dailyfeed@smalltalk.fun>',
+        subject: 'Your Daily Topics',
         html: text
     });
 

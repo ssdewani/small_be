@@ -16,7 +16,7 @@ const client = new openai({
 
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://small-fe.vercel.app'],
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://www.smalltalk.fun/', 'https://small-fe.vercel..vercel.app'],
   methods: 'GET,POST,PUT,DELETE,PATCH,HEAD',
   credentials: true,
 }));

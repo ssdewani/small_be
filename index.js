@@ -62,36 +62,31 @@ app.get('/topics', requireAuth(), async (req, res) => {
 
 
 app.get('/home', requireAuth(), async (req, res) => {
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date(todayStart);
-  todayEnd.setUTCDate(todayStart.getUTCDate() + 1);
+  const dateParam = req.query.date;
+  const targetDate = dateParam ? new Date(dateParam) : new Date();
 
-  const feed = { "ideas": [] };
-  const todayFeed = await Feed.findOne({
+  // Ensure valid date
+  if (isNaN(targetDate.getTime())) {
+    return res.status(400).json({ error: "Invalid date parameter" });
+  }
+
+  const dayStart = new Date(targetDate);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart);
+  dayEnd.setUTCDate(dayStart.getUTCDate() + 1);
+
+  const feed = { "ideas": [], "feedId": null };
+  const dayFeed = await Feed.findOne({
     clerkId: req.auth.userId,
     date: {
-      $gte: todayStart,
-      $lt: todayEnd,
+      $gte: dayStart,
+      $lt: dayEnd,
     }
   }).sort({ date: -1 }).exec();
 
-  if (!todayFeed) {
-    const currentUser = await User.findOne({
-      clerkId: req.auth.userId
-    });
-
-    const response = await generateFeed(currentUser.preferredTopics, currentUser.feedback, currentUser.likes, currentUser.dislikes);
-    feed.ideas = response.ideas;
-    const newFeed = new Feed({
-      clerkId: req.auth.userId,
-      ideas: response.ideas,
-    });
-    newFeed.save();
-    feed.feedId = newFeed._id;
-  } else {
-    feed.ideas = todayFeed.ideas;
-    feed.feedId = todayFeed._id;
+  if (dayFeed) {
+    feed.ideas = dayFeed.ideas;
+    feed.feedId = dayFeed._id;
   }
   res.json(feed);
 });

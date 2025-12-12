@@ -48,7 +48,7 @@ function formatEmailHtml(ideas) {
             </ul>
 
             <!-- Footer / Separator -->
-            <a href='https://small-fe.vercel.app/' style="margin-top: 15px; font-size: 12px; color:rgb(27, 0, 165);">
+            <a href='https://smalltalk.fun/' style="margin-top: 15px; font-size: 12px; color:rgb(27, 0, 165);">
                 Small Talk App
             </a>
       </div>
